@@ -1,8 +1,10 @@
 package ru.sam.smlr.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import ru.sam.smlr.service.KeyMapperService;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,15 +16,18 @@ import javax.servlet.http.HttpServletResponse;
 public class RedirectController {
 
     private static final String HEADER_NAME = "Location";
-    private static final String HEADER_VALUE = "http://www.google.com";
+
+    @Autowired
+    private KeyMapperService service;
 
     @RequestMapping
     public void redirect(@PathVariable("key") String key, HttpServletResponse response) {
-
-        if ("aAbBcCdD".equals(key)) {
-            response.setHeader(HEADER_NAME, HEADER_VALUE);
+        KeyMapperService.Get res = service.getLink(key);
+        if(res instanceof KeyMapperService.Get.Link){
+            response.setHeader(HEADER_NAME, ((KeyMapperService.Get.Link)res).getLink());
             response.setStatus(302);
-        } else {
+
+        }else if(res instanceof KeyMapperService.Get.NotFound){
             response.setStatus(404);
         }
 

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 /**
@@ -36,10 +37,14 @@ public class DefaultKeyConverterService implements KeyConverterService {
 
     @Override
     public Long keyToId(String key) {
-        long res = 0L;
+
+        /*long res = 0L;
         for (int i = 0; i < key.length(); i++) {
             res = res * chars.length + charToLong.get(key.charAt(i));
         }
+        return res;*/
+
+        Long res = LongStream.range(0, key.length()).reduce(0L, (a, b) -> a * chars.length + charToLong.get(key.charAt((int) b)));
         return res;
     }
 }

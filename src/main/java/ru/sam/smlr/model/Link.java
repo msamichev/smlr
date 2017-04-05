@@ -11,7 +11,8 @@ import javax.persistence.*;
 public class Link {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "links_sequence")
+    @SequenceGenerator(name = "links_sequence", sequenceName = "links_seq")
     private Long id;
 
     private String text;

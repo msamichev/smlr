@@ -2,8 +2,12 @@ package ru.sam.smlr.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import ru.sam.smlr.model.Link;
+import ru.sam.smlr.model.repository.LinkRepository;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -16,24 +20,22 @@ public class DefaultKeyMapperService implements KeyMapperService {
     @Autowired
     private KeyConverterService converter;
 
-    private AtomicLong sequence = new AtomicLong(10000000L);
-
-    private Map<Long, String> map = new ConcurrentHashMap<>();
-
+    @Autowired
+    private LinkRepository repository;
 
 
     @Override
+    @Transactional
     public String add(String link) {
-        long id = sequence.getAndIncrement();
-        String key = converter.idToKey(id);
-        map.put(id, link);
-        return key;
+        return converter.idToKey(repository.save(new Link(link)).getId());
     }
 
     @Override
     public Get getLink(String key) {
-        long id = converter.keyToId(key);
-        if (map.containsKey(id)) return new Get.Link(map.get(id));
+        Optional<Link> linkOptional = repository.findOne(converter.keyToId(key));
+
+        if (linkOptional.isPresent()) return new Get.Link(linkOptional.get().getText());
         else return new Get.NotFound(key);
+
     }
 }
